@@ -294,10 +294,12 @@ class OSSHandler(BaseHandler, EnforceOverrides):
             # If the prompt is already at the max length, just request 1000 token, we will get an error anyway
             leftover_tokens_count = 1000
         else:
-            leftover_tokens_count = min(
-                4096,
-                self.max_context_length - input_token_count - 2,
-            )
+            # leftover_tokens_count = min(
+            #     4096,
+            #     self.max_context_length - input_token_count - 2,
+            # )
+            # TODO: Remove this hardcode
+            leftover_tokens_count = min(self.max_context_length - input_token_count - 2, 32768)
 
         extra_body = {}
         if hasattr(self, "stop_token_ids"):

@@ -140,10 +140,13 @@ class WebSearchAPI:
         }
 
         # Infinite retry loop with exponential backoff
+        missing_organic_results_tries = 0
+        
         while True:
             try:
                 search = GoogleSearch(params)
                 search_results = search.get_dict()
+
             except Exception as e:
                 # If the underlying HTTP call raised a 429 we retry, otherwise propagate
                 if "429" in str(e):
@@ -176,6 +179,23 @@ class WebSearchAPI:
                 )
                 print(error_block)
                 time.sleep(wait_time)
+                backoff = min(backoff * 2, 120)
+                continue
+
+            if "organic_results" not in search_results:
+                missing_organic_results_tries += 1
+                if missing_organic_results_tries >= 3:
+                    error_block = (
+                        "*" * 100
+                        + f"\n❗️❗️ [WebSearchAPI] Missing organic results in search results. Maximum number of retries reached. Returning error."
+                        + "*" * 100
+                    )
+                    print(error_block)
+                    return {
+                        "error": "Failed to retrieve the search results from server. Please try again later."
+                    }
+                print(f"Missing organic results in search results. Retrying in {backoff:.1f} seconds…")
+                time.sleep(backoff)
                 backoff = min(backoff * 2, 120)
                 continue
 

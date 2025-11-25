@@ -42,6 +42,7 @@ from bfcl_eval.model_handler.local_inference.glm import GLMHandler
 from bfcl_eval.model_handler.local_inference.granite import (
     GraniteFunctionCallingHandler,
 )
+from bfcl_eval.model_handler.local_inference.olmo_3 import Olmo3Handler
 from bfcl_eval.model_handler.local_inference.granite_3 import Granite3FCHandler
 from bfcl_eval.model_handler.local_inference.hammer import HammerHandler
 from bfcl_eval.model_handler.local_inference.llama import LlamaHandler
@@ -63,6 +64,8 @@ from bfcl_eval.model_handler.local_inference.salesforce_qwen import (
     SalesforceQwenHandler,
 )
 from bfcl_eval.model_handler.local_inference.think_agent import ThinkAgentHandler
+from bfcl_eval.model_handler.local_inference.k2 import K2Handler
+from bfcl_eval.model_handler.local_inference.k2_oss import K2OSSHandler
 
 # -----------------------------------------------------------------------------
 # A mapping of model identifiers to their respective model configurations.
@@ -108,6 +111,9 @@ class ModelConfig:
 
     # True if this model does not allow '.' in function names
     underscore_to_dot: bool = False
+
+    # Reasoning effort for thinking models (e.g., high, medium, low)
+    reasoning_effort: Optional[str] = None
 
 
 # Inference through API calls
@@ -159,6 +165,45 @@ api_inference_model_map = {
         output_price=None,
         is_fc_model=False,
         underscore_to_dot=False,
+    ),
+    "openai/gpt-oss-120b-high": ModelConfig(
+        model_name="openai/gpt-oss-120b",
+        display_name="openai/gpt-oss-120b (FC) (vLLM) High",
+        url="https://huggingface.co/openai/gpt-oss-120b",
+        org="OpenAI",
+        license="apache-2.0",
+        model_handler=OpenAICompletionsHandler,
+        input_price=None,
+        output_price=None,
+        is_fc_model=True,
+        underscore_to_dot=True,
+        reasoning_effort="high",
+    ),
+    "openai/gpt-oss-120b-medium": ModelConfig(
+        model_name="openai/gpt-oss-120b",
+        display_name="openai/gpt-oss-120b (FC) (vLLM) Medium",
+        url="https://huggingface.co/openai/gpt-oss-120b",
+        org="OpenAI",
+        license="apache-2.0",
+        model_handler=OpenAICompletionsHandler,
+        input_price=None,
+        output_price=None,
+        is_fc_model=True,
+        underscore_to_dot=True,
+        reasoning_effort="medium",
+    ),
+    "openai/gpt-oss-120b-low": ModelConfig(
+        model_name="openai/gpt-oss-120b",
+        display_name="openai/gpt-oss-120b (FC) (vLLM) Low",
+        url="https://huggingface.co/openai/gpt-oss-120b",
+        org="OpenAI",
+        license="apache-2.0",
+        model_handler=OpenAICompletionsHandler,
+        input_price=None,
+        output_price=None,
+        is_fc_model=True,
+        underscore_to_dot=True,
+        reasoning_effort="low",
     ),
     "gpt-5-2025-08-07-FC": ModelConfig(
         model_name="gpt-5-2025-08-07",
@@ -1136,6 +1181,90 @@ local_inference_model_map = {
         is_fc_model=False,
         underscore_to_dot=False,
     ),
+    "allenai/Olmo-3-7B-Think": ModelConfig(
+        model_name="allenai/Olmo-3-7B-Think",
+        display_name="Olmo-3-7B-Think (FC)",
+        url="https://huggingface.co/allenai/Olmo-3-7B-Think",
+        org="AllenAI",
+        license="MIT",
+        model_handler=Olmo3Handler,
+        input_price=None,
+        output_price=None,
+        is_fc_model=True,
+        underscore_to_dot=True,
+    ),
+    "allenai/Olmo-3-32B-Think": ModelConfig(
+        model_name="allenai/Olmo-3-32B-Think",
+        display_name="Olmo-3-32B-Think (FC)",
+        url="https://huggingface.co/allenai/Olmo-3-32B-Think",
+        org="AllenAI",
+        license="MIT",
+        model_handler=Olmo3Handler,
+        input_price=None,
+        output_price=None,
+        is_fc_model=True,
+        underscore_to_dot=True,
+    ),
+    "k2-mix-oss": ModelConfig(
+        model_name="/mnt/weka/shrd/k2m/mikhail.yurochkin/k2_sft_checkpoints/mix_oss/",
+        display_name="K2-Mix-OSS (FC)",
+        url="",
+        org="MBZUAI-IFM",
+        license="Proprietary",
+        model_handler=K2OSSHandler,
+        is_fc_model=True,
+        reasoning_effort="high",
+    ),
+    "k2-mix-oss-medium": ModelConfig(
+        model_name="/mnt/weka/shrd/k2m/mikhail.yurochkin/k2_sft_checkpoints/mix_oss/",
+        display_name="K2-Mix-OSS-Medium (FC)",
+        url="",
+        org="MBZUAI-IFM",
+        license="Proprietary",
+        model_handler=K2OSSHandler,
+        is_fc_model=True,
+        reasoning_effort="medium",
+    ),
+    "k2-mix-oss-low": ModelConfig(
+        model_name="/mnt/weka/shrd/k2m/mikhail.yurochkin/k2_sft_checkpoints/mix_oss/",
+        display_name="K2-Mix-OSS-Low (FC)",
+        url="",
+        org="MBZUAI-IFM",
+        license="Proprietary",
+        model_handler=K2OSSHandler,
+        is_fc_model=True,
+        reasoning_effort="low",
+    ),
+    "k2-mix-think-sft": ModelConfig(
+        model_name="/mnt/weka/shrd/k2m/mikhail.yurochkin/k2_sft_checkpoints/mix_with_think_sft/",
+        display_name="K2-Mix-Think-SFT (FC)",
+        url="",
+        org="MBZUAI-IFM",
+        license="Proprietary",
+        model_handler=K2Handler,
+        is_fc_model=True,
+        reasoning_effort="high",
+    ),
+    "k2-mix-think-sft-medium": ModelConfig(
+        model_name="/mnt/weka/shrd/k2m/mikhail.yurochkin/k2_sft_checkpoints/mix_with_think_sft/",
+        display_name="K2-Mix-Think-SFT-Medium (FC)",
+        url="",
+        org="MBZUAI-IFM",
+        license="Proprietary",
+        model_handler=K2Handler,
+        is_fc_model=True,
+        reasoning_effort="medium",
+    ),
+    "k2-mix-think-sft-low": ModelConfig(
+        model_name="/mnt/weka/shrd/k2m/mikhail.yurochkin/k2_sft_checkpoints/mix_with_think_sft/",
+        display_name="K2-Mix-Think-SFT-Low (FC)",
+        url="",
+        org="MBZUAI-IFM",
+        license="Proprietary",
+        model_handler=K2Handler,
+        is_fc_model=True,
+        reasoning_effort="low",
+    ),
     "google/gemma-3-1b-it": ModelConfig(
         model_name="google/gemma-3-1b-it",
         display_name="Gemma-3-1b-it (Prompt)",
@@ -1495,6 +1624,18 @@ local_inference_model_map = {
         output_price=None,
         is_fc_model=True,
         underscore_to_dot=True,
+    ),
+    "Qwen/Qwen2.5-72B-Instruct-FC": ModelConfig(
+        model_name="Qwen/Qwen2.5-72B-Instruct",
+        display_name="Qwen2.5-72B-Instruct (FC)",
+        url="https://huggingface.co/Qwen/Qwen2.5-72B-Instruct",
+        org="Qwen",
+        license="apache-2.0",
+        model_handler=QwenFCHandler,
+        input_price=None,
+        output_price=None,
+        is_fc_model=True,
+        underscore_to_dot=False,
     ),
     "Qwen/Qwen3-0.6B-FC": ModelConfig(
         model_name="Qwen/Qwen3-0.6B",

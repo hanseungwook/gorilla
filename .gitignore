@@ -1,3 +1,7 @@
+logs/
+score_*
+berkeley-function-call-leaderboard/bfcl_eval/scripts/
+
 build
 dist
 *.egg-info

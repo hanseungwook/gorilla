@@ -50,6 +50,9 @@ def _subset_entries_by_model_ids(
             f"Length of model result ({len(model_result_entries)}) does not match length of test entries ({len(prompt_entries)}). If you intended to run only on a subset (eg. entries present in the model result), please pass the `--partial-eval` flag."
         )
 
+    if len(model_result_entries) != len(prompt_entries):
+        print(f"Warning: Length of model result ({len(model_result_entries)}) does not match length of test entries ({len(prompt_entries)}).")
+        
     all_present_ids = {entry["id"]: entry for entry in model_result_entries}
 
     # Align prompt and ground-truth using the *index* of the prompt entry. Some

@@ -357,10 +357,50 @@ def load_file(file_path, sort_by_id: bool = False, use_lock: bool = True) -> lis
 
     def _load_entries(input_path: str) -> None:
         with open(input_path) as f:
-            file = f.readlines()
-            for line in file:
-                content = json.loads(line)
-                result.append(content)
+            lines = f.readlines()
+
+        i = 0
+        n = len(lines)
+
+        while i < n:
+            line = lines[i]
+            s = line.strip()
+            if not s:
+                i += 1
+                continue
+
+            try:
+                # Fast path: JSONL-style, one object per line
+                obj = json.loads(s)
+                result.append(obj)
+                i += 1
+                continue
+            except json.JSONDecodeError:
+                # Fallback: this line is the start of a multi-line JSON object
+                buffer = line
+                j = i + 1
+
+                while True:
+                    if j >= n:
+                        # We ran out of lines but still can't parse -> malformed JSON
+                        raise json.JSONDecodeError(
+                            f"Could not parse multi-line JSON object starting at line {i+1}",
+                            buffer,
+                            pos=0,
+                        )
+
+                    buffer += lines[j]
+                    try:
+                        obj = json.loads(buffer)
+                        result.append(obj)
+                        i = j + 1  # continue after the end of this object
+                        break
+                    except json.JSONDecodeError:
+                        j += 1
+                        continue
+        
+        return result
+            
 
     if use_lock:
         with _get_file_lock(file_path):

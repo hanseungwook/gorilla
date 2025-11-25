@@ -69,6 +69,7 @@ def build_handler(model_name, temperature):
         temperature=temperature,
         registry_name=model_name,
         is_fc_model=config.is_fc_model,
+        reasoning_effort=config.reasoning_effort,
     )
     return handler
 
@@ -394,6 +395,9 @@ def main(args):
             )
         else:
             generate_results(args, model_name, test_cases_total)
+
+            # Remove reasoning_content from the result files
+            
             # Sort the result files by id at the end
             for model_result_json in args.result_dir.rglob(RESULT_FILE_PATTERN):
                 sort_file_content_by_id(model_result_json)

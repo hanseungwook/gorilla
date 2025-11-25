@@ -30,6 +30,8 @@ class OpenAICompletionsHandler(BaseHandler):
         super().__init__(model_name, temperature, registry_name, is_fc_model, **kwargs)
         self.model_style = ModelStyle.OPENAI_COMPLETIONS
         self.client = OpenAI(**self._build_client_kwargs())
+        if 'gpt-oss-120b' in model_name:
+            self.reasoning_effort = kwargs.get("reasoning_effort")
 
     def _build_client_kwargs(self):
         """Collect OpenAI client keyword arguments from environment variables, but only
@@ -86,6 +88,7 @@ class OpenAICompletionsHandler(BaseHandler):
             "model": self.model_name,
             "temperature": self.temperature,
             "store": False,
+            "reasoning_effort": self.reasoning_effort,
         }
 
         if len(tools) > 0:
@@ -118,6 +121,9 @@ class OpenAICompletionsHandler(BaseHandler):
         except:
             model_responses = api_response.choices[0].message.content
             tool_call_ids = []
+        
+        if not model_responses and api_response.choices[0].message.content:
+            model_responses = api_response.choices[0].message.content
 
         model_responses_message_for_chat_history = api_response.choices[0].message
 
